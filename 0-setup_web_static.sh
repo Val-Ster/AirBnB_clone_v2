@@ -1,53 +1,48 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# sets up the web-servers for the deployment of web_static
 
-# Install Nginx if it is not already installed
-if ! which nginx > /dev/null 2>&1; then
-    sudo apt update
-    sudo apt install -y nginx
-fi
+echo -e "\e[1;32m START\e[0m"
 
-# Create the necessary directories
-sudo mkdir -p /data/web_static/releases/test/
-sudo mkdir -p /data/web_static/shared/
+# Updates the packages
+sudo apt-get -y update
+sudo apt-get -y install nginx
+echo -e "\e[1;32m Packages updated\e[0m"
+echo
 
-# Create a fake HTML file
-echo "<html>
-  <head>
-  </head>
-  <body>
-    Holberton School
-  </body>
-</html>" | sudo tee /data/web_static/releases/test/index.html
+# configure firewall
+sudo ufw allow 'Nginx HTTP'
+echo -e "\e[1;32m Allow incomming NGINX HTTP connections\e[0m"
+echo
 
-# Create a symbolic link
-if [ -L /data/web_static/current ]; then
-    sudo rm /data/web_static/current
-fi
-sudo ln -s /data/web_static/releases/test/ /data/web_static/current
+# created the directory
+sudo mkdir -p /data/web_static/releases/test /data/web_static/shared
+echo -e "\e[1;32m directories created"
+echo
 
-# Give ownership of the /data/ folder to the ubuntu user and group
-sudo chown -R ubuntu /data/
+# adds Test string
+echo "<h1>Holberton School</h1>" > /data/web_static/releases/test/index.html
+echo -e "\e[1;32m Test string added\e[0m"
+echo
 
-# Update Nginx configuration
-nginx_config="server {
-    listen 80;
-    server_name localhost;
+# prevents overwrite
+if [ -d "/data/web_static/current" ];
+then
+    echo "path /data/web_static/current exists"
+    sudo rm -rf /data/web_static/current;
+fi;
+echo -e "\e[1;32m prevent overwrite\e[0m"
+echo
 
-    location /hbnb_static/ {
-        alias /data/web_static/current/;
-        index index.html index.htm;
-    }
-    
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
-}"
+# create symbolic link
+sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
+sudo chown -hR ubuntu:ubuntu /data
 
-# Backup the default Nginx config file
-sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
+sudo sed -i '38i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n' /etc/nginx/sites-available/default
 
-# Write the new configuration
-echo "$nginx_config" | sudo tee /etc/nginx/sites-available/default
+sudo ln -sf '/etc/nginx/sites-available/default' '/etc/nginx/sites-enabled/default'
+echo -e "\e[1;32m Symbolic link created\e[0m"
+echo
 
-# Restart Nginx to apply changes
-sudo systemctl restart nginx
+#--restart NGINX
+sudo service nginx restart
+echo -e "\e[1;32m restart NGINX\e[0m"

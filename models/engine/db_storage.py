@@ -53,6 +53,12 @@ of the class name (argument cls)"""
 database session(self.__session)"""
         self.__session.add(obj)
 
+    def close(self):
+        """
+        Method to close DBStorage.
+        """
+        self.__session.remove()
+
     def save(self):
         """Commit all changes of the current
 database session(self.__session)"""

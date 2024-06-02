@@ -1,4 +1,4 @@
-s is the db storage class for AirBnB."""
+"""s is the db storage class for AirBnB."""
 import datetime
 from os import getenv
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -13,9 +13,7 @@ from models.review import Review
 
 
 class DBStorage():
-    """
-    Database Engine for AirBnB project.
-    """
+    """ Database Engine for AirBnB project."""
     __engine = None
     __session = None
 
@@ -32,7 +30,7 @@ class DBStorage():
 
     def all(self, cls=None):
         """Returns dictionary with all objects depending
-        of the class name (argument cls)"""
+of the class name (argument cls)"""
         if cls:
             objs = self.__session.query(self.classes()[cls])
         else:
@@ -51,12 +49,12 @@ class DBStorage():
 
     def new(self, obj):
         """Add the object to the current
-        database session (self.__session)"""
+database session(self.__session)"""
         self.__session.add(obj)
 
     def save(self):
         """Commit all changes of the current
-        database session (self.__session)"""
+database session(self.__session)"""
         self.__session.commit()
 
     def delete(self, obj=None):
@@ -65,8 +63,8 @@ class DBStorage():
             self.__session.delete(obj)
 
     def reload(self):
-        """Create the current database session (self.__session) from
-        the engine (self.__engine) by using a sessionmaker"""
+        """Create the current database session(self.__session) from
+the engine(self.__engine) by using a sessionmaker"""
         from models.user import User
         from models.state import State
         from models.city import City
